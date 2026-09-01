@@ -134,17 +134,22 @@ function toast(message) {
   window.__toastTimer = setTimeout(() => el.classList.remove('is-visible'), 1800);
 }
 
-function renderPanel() {
+function renderPanel(updateFields = true) {
   const data = getData();
   const b = data.business;
-  document.getElementById('inputBusinessName').value = b.name;
-  document.getElementById('inputTagline').value = b.tagline;
-  document.getElementById('inputLocation').value = b.location;
-  document.getElementById('inputSchedule').value = b.schedule;
-  document.getElementById('inputInstagram').value = b.instagram;
-  document.getElementById('inputTiktok').value = b.tiktok;
-  document.getElementById('inputWhatsapp').value = b.whatsapp;
-  document.getElementById('inputBooking').value = b.bookingUrl;
+  document.getElementById('serviceCount').textContent = data.services.length;
+  document.getElementById('portfolioCount').textContent = data.portfolio.length;
+  document.getElementById('studioName').textContent = b.name;
+  if (updateFields) {
+    document.getElementById('inputBusinessName').value = b.name;
+    document.getElementById('inputTagline').value = b.tagline;
+    document.getElementById('inputLocation').value = b.location;
+    document.getElementById('inputSchedule').value = b.schedule;
+    document.getElementById('inputInstagram').value = b.instagram;
+    document.getElementById('inputTiktok').value = b.tiktok;
+    document.getElementById('inputWhatsapp').value = b.whatsapp;
+    document.getElementById('inputBooking').value = b.bookingUrl;
+  }
 
   document.getElementById('panelServices').innerHTML = data.services.length ? data.services.map(service => `
     <div class="admin-item">
@@ -171,15 +176,29 @@ function initPanel() {
     data.business.instagram = document.getElementById('inputInstagram').value.trim();
     data.business.tiktok = document.getElementById('inputTiktok').value.trim();
     saveData(data);
+    renderPanel(false);
     toast('Negocio guardado');
   });
 
-  document.getElementById('saveContact').addEventListener('click', () => {
+  document.getElementById('contactForm').addEventListener('submit', (event) => {
+    event.preventDefault();
     const data = getData();
     data.business.whatsapp = document.getElementById('inputWhatsapp').value.trim();
-    data.business.bookingUrl = document.getElementById('inputBooking').value.trim();
     saveData(data);
-    toast('Contacto guardado');
+    toast('WhatsApp guardado');
+  });
+
+  document.getElementById('bookingForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const value = document.getElementById('inputBooking').value.trim();
+    if (value && !safeUrl(value)) {
+      toast('Introduce un enlace que empiece por https:// o http://');
+      return;
+    }
+    const data = getData();
+    data.business.bookingUrl = value;
+    saveData(data);
+    toast('Enlace de reservas guardado');
   });
 
   document.getElementById('serviceForm').addEventListener('submit', (event) => {
@@ -192,7 +211,7 @@ function initPanel() {
     });
     saveData(data);
     event.target.reset();
-    renderPanel();
+    renderPanel(false);
     toast('Servicio añadido');
   });
 
@@ -208,7 +227,7 @@ function initPanel() {
     });
     saveData(data);
     event.target.reset();
-    renderPanel();
+    renderPanel(false);
     toast('Trabajo añadido');
   });
 
@@ -219,19 +238,20 @@ function initPanel() {
       const data = getData();
       data.services = data.services.filter(item => item.id !== serviceId);
       saveData(data);
-      renderPanel();
+      renderPanel(false);
       toast('Servicio eliminado');
     }
     if (portfolioId) {
       const data = getData();
       data.portfolio = data.portfolio.filter(item => item.id !== portfolioId);
       saveData(data);
-      renderPanel();
+      renderPanel(false);
       toast('Trabajo eliminado');
     }
   });
 
   document.getElementById('resetDemo').addEventListener('click', () => {
+    if (!window.confirm('¿Restablecer la DEMO? Se borrarán los cambios guardados en este navegador.')) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cloneDemoData()));
     renderPanel();
     toast('DEMO restablecida');
@@ -241,3 +261,4 @@ function initPanel() {
 const page = document.body.dataset.page;
 if (page === 'public') renderPublic();
 if (page === 'panel') initPanel();
+
