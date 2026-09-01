@@ -1,4 +1,5 @@
 import { DEMO_BUSINESS_ID, getClient } from "./supabase-client.js";
+import { validateImage } from "./portfolio-storage.js";
 import {
   getData,
   getMemberships,
@@ -22,6 +23,49 @@ let currentBusinessId = null;
 let currentData = null;
 let generation = 0;
 let busy = false;
+let previewUrl = null;
+let previewVersion = 0;
+
+function clearImagePreview() {
+  ++previewVersion;
+  if (previewUrl) URL.revokeObjectURL(previewUrl);
+  previewUrl = null;
+  $("portfolioPreview").removeAttribute("src");
+  $("portfolioPreview").hidden = true;
+  $("portfolioFile").setCustomValidity("");
+  $("portfolioImageStatus").textContent = "";
+}
+
+async function previewImage() {
+  clearImagePreview();
+  const version = previewVersion;
+  const input = $("portfolioFile");
+  const file = input.files[0];
+  if (!file) return;
+  try {
+    validateImage(file);
+    input.setCustomValidity("Espera a que termine la previsualización.");
+    previewUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.src = previewUrl;
+    await image.decode();
+    if (version !== previewVersion) return;
+    $("portfolioPreview").src = previewUrl;
+    $("portfolioPreview").hidden = false;
+    input.setCustomValidity("");
+    $("portfolioImageStatus").textContent =
+      `${file.name} · Lista para subir al guardar.`;
+  } catch (error) {
+    if (version !== previewVersion) return;
+    clearImagePreview();
+    const message =
+      error instanceof DOMException
+        ? "No se puede abrir esta imagen. Elige otro archivo."
+        : error.message;
+    input.setCustomValidity(message);
+    $("portfolioImageStatus").textContent = message;
+  }
+}
 
 function status(message, retry = false) {
   $("pageStatus").textContent = message;
@@ -29,6 +73,7 @@ function status(message, retry = false) {
 }
 
 function clearPanel() {
+  clearImagePreview();
   currentBusinessId = null;
   currentData = null;
   $("panelContent").hidden = true;
@@ -162,6 +207,7 @@ async function mutate(operation, applyResult, message) {
 }
 
 function bindPanel() {
+  $("portfolioFile").addEventListener("change", previewImage);
   $("saveBusiness").addEventListener("click", () =>
     mutate(
       (context) =>
@@ -225,12 +271,16 @@ function bindPanel() {
         addPortfolio(context, {
           title: required("portfolioTitle", "título"),
           service: required("portfolioService", "servicio"),
-          image: urlValue("portfolioImage", "La imagen"),
+          file: $("portfolioFile").files[0],
+          image: $("portfolioFile").files.length
+            ? ""
+            : urlValue("portfolioImage", "La imagen"),
           note: value("portfolioNote"),
         }),
       (item) => {
         currentData.portfolio.push(item);
         $("portfolioForm").reset();
+        clearImagePreview();
         renderPanelLists(currentData);
       },
       "Trabajo añadido",

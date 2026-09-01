@@ -83,6 +83,7 @@ export function renderPublic(data) {
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.service)}</p>
         <small class="muted">${escapeHtml(item.note || "")}</small>
+        ${item.imageError ? '<p class="muted">No se pudo cargar la imagen. Recarga la página para intentarlo de nuevo.</p>' : ""}
       </div>
     </article>`;
         })
@@ -162,7 +163,12 @@ export function renderPanelLists(data) {
         .map(
           (item) => `
     <div class="admin-item">
-      <div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.service)} · ${escapeHtml(item.note || "")}</small></div>
+      <div>
+        <strong>${escapeHtml(item.title)}</strong>
+        <small>${escapeHtml(item.service)} · ${escapeHtml(item.note || "")}</small>
+        ${safeUrl(item.image) ? `<img class="portfolio-preview" src="${escapeHtml(safeUrl(item.image))}" alt="${escapeHtml(item.title)}" loading="lazy" />` : ""}
+        ${item.imageError ? '<p class="muted">No se pudo cargar la imagen. Recarga la página para intentarlo de nuevo.</p>' : ""}
+      </div>
       <button class="icon-button" data-delete-portfolio="${escapeHtml(item.id)}" type="button">Eliminar</button>
     </div>`,
         )

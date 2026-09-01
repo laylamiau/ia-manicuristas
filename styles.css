@@ -2,6 +2,28 @@
   box-sizing: border-box;
 }
 
+.portfolio-upload {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.portfolio-upload label {
+  font-weight: 700;
+}
+
+.portfolio-upload details {
+  margin-top: 16px;
+}
+
+.portfolio-preview {
+  display: block;
+  width: min(100%, 360px);
+  max-height: 280px;
+  object-fit: contain;
+  border-radius: 14px;
+  margin-top: 12px;
+}
+
 html {
   scroll-behavior: smooth;
 }

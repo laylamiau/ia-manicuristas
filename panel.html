@@ -177,12 +177,38 @@
                 placeholder="Servicio DEMO"
                 required
             /></label>
-            <label
-              >URL de imagen<input
-                id="portfolioImage"
-                type="url"
-                placeholder="https://..."
-            /></label>
+            <div class="portfolio-upload">
+              <label for="portfolioFile">Imagen del trabajo</label>
+              <input
+                id="portfolioFile"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                aria-describedby="portfolioImageHelp portfolioImageStatus"
+              />
+              <p id="portfolioImageHelp" class="muted">
+                JPG, PNG o WebP · Máximo 5 MB. Se subirá al guardar el trabajo.
+              </p>
+              <img
+                id="portfolioPreview"
+                class="portfolio-preview"
+                alt="Previsualización de la imagen seleccionada"
+                hidden
+              />
+              <p id="portfolioImageStatus" class="muted" role="status"></p>
+              <details>
+                <summary>Usar una URL en su lugar</summary>
+                <label for="portfolioImage">URL de imagen</label>
+                <input
+                  id="portfolioImage"
+                  type="text"
+                  inputmode="url"
+                  placeholder="https://..."
+                />
+                <p class="muted">
+                  Si eliges un archivo, se utilizará el archivo.
+                </p>
+              </details>
+            </div>
             <label
               >Nota / precio<input
                 id="portfolioNote"

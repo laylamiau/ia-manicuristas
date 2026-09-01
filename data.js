@@ -1,4 +1,5 @@
 import { getClient } from "./supabase-client.js";
+import { uploadImage, resolveImage } from "./portfolio-storage.js";
 
 const BUSINESS_COLUMNS =
   "id,name,tagline,address,schedule,instagram,tiktok,whatsapp,booking_url";
@@ -106,7 +107,12 @@ export async function getData(businessId) {
   return {
     business: businessFromRow(business),
     services: unwrap(services),
-    portfolio: unwrap(portfolio).map(portfolioFromRow),
+    portfolio: await Promise.all(
+      unwrap(portfolio).map(async (row) => ({
+        ...portfolioFromRow(row),
+        ...(await resolveImage(client, row.image_url, businessId)),
+      })),
+    ),
   };
 }
 
@@ -190,19 +196,40 @@ export async function addService(context, fields) {
 
 export async function addPortfolio(context, fields) {
   const client = await authorizedClient(context);
-  const row = changedRow(
-    await client
-      .from("portfolio")
-      .insert({
-        business_id: context.businessId,
-        title: fields.title,
-        service: fields.service,
-        image_url: fields.image,
-        description: fields.note,
-      })
-      .select(PORTFOLIO_COLUMNS),
-  );
-  return portfolioFromRow(row);
+  const imagePath = fields.file
+    ? await uploadImage(client, context.businessId, fields.file)
+    : fields.image;
+  // Volver a comprobar la sesión tras una subida potencialmente lenta.
+  // Ante un fallo de red ambiguo no se borra la imagen: la inserción podría
+  // haber llegado al servidor aunque se haya perdido la respuesta.
+  await authorizedClient(context);
+  const result = await client
+    .from("portfolio")
+    .insert({
+      business_id: context.businessId,
+      title: fields.title,
+      service: fields.service,
+      image_url: imagePath,
+      description: fields.note,
+    })
+    .select(PORTFOLIO_COLUMNS);
+  if (
+    fields.file &&
+    result.error &&
+    /^(?:[0-9]{5}|PGRST\d+)$/.test(result.error.code ?? "")
+  ) {
+    const cleanup = await client.storage.from("portfolio").remove([imagePath]);
+    if (cleanup.error) {
+      throw new Error(
+        "No se guardó el trabajo. La imagen quedó subida; revisa el almacenamiento antes de volver a intentarlo.",
+      );
+    }
+  }
+  const row = changedRow(result);
+  return {
+    ...portfolioFromRow(row),
+    ...(await resolveImage(client, row.image_url, context.businessId)),
+  };
 }
 
 export async function deleteItem(context, table, id) {

@@ -44,6 +44,45 @@ antes de añadir permisos de lectura pública.
 
 ## Datos y compatibilidad
 
+### Imágenes del portfolio
+
+Ejecuta también `supabase/003_portfolio_storage.sql`. Crea o reutiliza el bucket
+`portfolio` y lo configura como **privado**, con límite de 5 MB y tipos JPG, PNG
+y WebP. Conserva los objetos existentes. Las políticas de escritura exigen
+autenticación y una asociación en `business_users` con el primer directorio del
+archivo. Las políticas restrictivas impiden que otra política permisiva abra
+este bucket a escrituras anónimas o a negocios ajenos. No se cambian los permisos
+de otros buckets ni las políticas de las tablas.
+
+El selector de archivos muestra una previsualización antes de guardar. La subida
+usa `business_id/UUID.ext` y `upsert: false` para no sobrescribir imágenes. En
+`portfolio.image_url` se guarda esa ruta permanente. La URL manual permanece como
+alternativa; si hay archivo seleccionado, tiene prioridad.
+
+Al leer el portfolio se generan enlaces firmados válidos durante una hora;
+recargar la página los renueva. Quien reciba uno de esos enlaces puede ver la
+imagen hasta que caduque. La autorización para generarlos sigue las asociaciones
+y el RLS de los trabajos: no se hace público el portfolio automáticamente.
+Las URL externas antiguas siguen funcionando; las URL públicas del bucket
+`portfolio` de este proyecto se resuelven como rutas privadas dentro de la web.
+Si ese bucket ya era público, sus antiguos enlaces públicos directos dejan de
+funcionar fuera de la web al ejecutar la migración.
+
+Si la subida falla, no se inserta el trabajo. Si la base de datos devuelve un
+rechazo explícito tras subir, se intenta retirar el archivo recién subido. Ante
+una respuesta de red ambigua o un cambio de sesión, se conserva el archivo para
+no borrar una imagen que pudiera haber quedado vinculada a un trabajo. Los
+archivos no se borran automáticamente al eliminar un trabajo; la limpieza de
+archivos sin referencias se realiza en Storage.
+
+Las pruebas de navegador cubren previsualización, formato y tamaño, fallo de
+subida, limpieza tras rechazo de la inserción, rutas por negocio, lectura con
+URL firmada y rechazo de un negocio ajeno. Usan Storage simulado: la subida real
+y las políticas del servidor deben comprobarse tras aplicar el SQL, con las
+cuentas propias. No se solicitan claves administrativas en la web.
+
+### Campos existentes
+
 - Negocio: nombre, descripción, ubicación (`address`), horario, redes, WhatsApp y
   enlace de reservas (`booking_url`). Los dos botones guardan únicamente sus campos.
 - Servicios: nombre y precio numérico; el precio admite cero y dos decimales.
@@ -70,6 +109,7 @@ No se insertan datos de ejemplo en Supabase.
 - `main.js`: sesión, eventos de formularios y estados de la interfaz.
 - `data.js`: consultas, mapeo de columnas y operaciones por negocio.
 - `supabase-client.js`: configuración pública y cliente compartido.
+- `portfolio-storage.js`: validación, subida y lectura privada de imágenes.
 - `supabase/`: ajuste mínimo del esquema y publicación opcional del DEMO.
 
 ## Verificación

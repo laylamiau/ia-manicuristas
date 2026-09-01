@@ -37,6 +37,8 @@ function fixture() {
   window.calls = [];
   window.failWrite = false;
   window.noRows = false;
+  window.storageCalls = [];
+  window.failUpload = false;
   const rows = {
     business_users: [
       { user_id: "user-a", business_id: a },
@@ -90,6 +92,39 @@ function fixture() {
   };
   window.mockClient = {
     auth,
+    storage: {
+      from(bucket) {
+        return {
+          async upload(path, file, options) {
+            window.storageCalls.push({
+              method: "upload",
+              bucket,
+              path,
+              type: file.type,
+              options,
+            });
+            if (window.failUpload) return { error: { message: "Denied" } };
+            return { data: { path }, error: null };
+          },
+          async createSignedUrl(path, expiresIn) {
+            window.storageCalls.push({
+              method: "sign",
+              bucket,
+              path,
+              expiresIn,
+            });
+            return {
+              data: { signedUrl: "https://images.example.invalid/test.png" },
+              error: null,
+            };
+          },
+          async remove(paths) {
+            window.storageCalls.push({ method: "remove", bucket, paths });
+            return { data: [], error: null };
+          },
+        };
+      },
+    },
     from(table) {
       let method = "select";
       let payload;
@@ -289,11 +324,113 @@ function fixture() {
     await page.fill("#portfolioTitle", "Trabajo de prueba");
     await page.fill("#portfolioService", "Servicio de prueba");
     await page.fill("#portfolioNote", "Nota de prueba");
+    const png = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=",
+      "base64",
+    );
+    await page.route("https://images.example.invalid/**", (route) =>
+      route.fulfill({ contentType: "image/png", body: png }),
+    );
+    await page.setInputFiles("#portfolioFile", {
+      name: "test.svg",
+      mimeType: "image/svg+xml",
+      buffer: Buffer.from("<svg/>"),
+    });
+    await page.waitForFunction(() =>
+      document
+        .getElementById("portfolioFile")
+        .validationMessage.includes("JPG"),
+    );
+    assert.equal(await page.locator("#portfolioPreview").isVisible(), false);
+    await page.setInputFiles("#portfolioFile", {
+      name: "large.png",
+      mimeType: "image/png",
+      buffer: Buffer.alloc(5 * 1024 * 1024 + 1),
+    });
+    await page.waitForFunction(() =>
+      document
+        .getElementById("portfolioFile")
+        .validationMessage.includes("5 MB"),
+    );
+    await page.setInputFiles("#portfolioFile", {
+      name: "test.png",
+      mimeType: "image/png",
+      buffer: png,
+    });
+    await page.locator("#portfolioPreview").waitFor({ state: "visible" });
+    await page.evaluate(() => {
+      window.failUpload = true;
+    });
+    await page.locator("#portfolioForm button").click();
+    await page.waitForFunction(() =>
+      document
+        .getElementById("pageStatus")
+        .textContent.includes("No se pudo subir"),
+    );
+    assert.equal(await page.locator("#panelPortfolio .admin-item").count(), 0);
+    assert.equal(await page.inputValue("#portfolioTitle"), "Trabajo de prueba");
+    await page.evaluate(() => {
+      window.failUpload = false;
+      window.failWrite = true;
+    });
+    await page.locator("#portfolioForm button").click();
+    await page.waitForFunction(() =>
+      window.storageCalls.some((item) => item.method === "remove"),
+    );
+    assert.equal(await page.locator("#panelPortfolio .admin-item").count(), 0);
+    await page.evaluate(() => {
+      window.failWrite = false;
+    });
     await page.locator("#portfolioForm button").click();
     await page.waitForFunction(
       () =>
         document.querySelectorAll("#panelPortfolio .admin-item").length === 1,
     );
+    assert.equal(await page.locator("#portfolioPreview").isVisible(), false);
+    const upload = await page.evaluate(() =>
+      storageCalls.find((item) => item.method === "upload"),
+    );
+    assert.equal(upload.bucket, "portfolio");
+    assert.equal(upload.options.upsert, false);
+    assert.match(
+      upload.path,
+      /^117545fa-f439-4723-bbad-a80bde548581\/[a-f0-9-]+\.png$/,
+    );
+    const portfolioInsert = await page.evaluate(() =>
+      calls
+        .filter(
+          (item) => item.table === "portfolio" && item.method === "insert",
+        )
+        .at(-1),
+    );
+    assert.match(
+      portfolioInsert.payload.image_url,
+      /^117545fa-f439-4723-bbad-a80bde548581\//,
+    );
+    const loaded = await page.evaluate(async () => {
+      const { getData } = await import("/data.js");
+      return getData("117545fa-f439-4723-bbad-a80bde548581");
+    });
+    assert.equal(
+      loaded.portfolio[0].image,
+      "https://images.example.invalid/test.png",
+    );
+    const foreign = await page.evaluate(async () => {
+      const { addPortfolio } = await import("/data.js");
+      try {
+        await addPortfolio(
+          {
+            userId: "user-a",
+            businessId: "22222222-2222-4222-8222-222222222222",
+          },
+          { file: new File(["x"], "x.png", { type: "image/png" }) },
+        );
+        return "unexpected";
+      } catch (error) {
+        return error.message;
+      }
+    });
+    assert.match(foreign, /no tiene acceso/);
     await page.locator("#panelPortfolio button").click();
     await page.waitForFunction(
       () =>
