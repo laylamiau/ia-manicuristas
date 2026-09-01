@@ -1,83 +1,107 @@
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Manicurista — DEMO</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body data-page="public">
-  <header class="hero">
-    <div class="container hero__content">
-      <span class="demo-badge">DEMO</span>
-      <p class="eyebrow">Miniweb profesional</p>
-      <h1 id="businessName">Manicurista — DEMO</h1>
-      <p id="businessTagline">Página de prueba. Datos no reales.</p>
-      <div class="hero__actions">
-        <a id="bookingButton" class="button button--primary" href="#reservas">Reservar cita</a>
-        <a id="whatsappButton" class="button button--secondary" href="#" target="_blank" rel="noopener">WhatsApp</a>
-      </div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Miniweb profesional</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="public">
+    <div class="container status-area">
+      <p id="pageStatus" role="status" aria-live="polite">Cargando miniweb…</p>
+      <button
+        id="retryLoad"
+        class="button button--secondary"
+        type="button"
+        hidden
+      >
+        Volver a intentar
+      </button>
     </div>
-  </header>
-
-  <main class="container stack-xl">
-    <section>
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Servicios</p>
-          <h2>Servicios y precios</h2>
+    <header id="publicHero" class="hero" hidden>
+      <div class="container hero__content">
+        <span class="demo-badge" data-demo-only>DEMO</span>
+        <p class="eyebrow">Miniweb profesional</p>
+        <h1 id="businessName"></h1>
+        <p id="businessTagline"></p>
+        <div class="hero__actions">
+          <a id="bookingButton" class="button button--primary" href="#reservas"
+            >Reservar cita</a
+          >
+          <a
+            id="whatsappButton"
+            class="button button--secondary"
+            href="#"
+            target="_blank"
+            rel="noopener"
+            >WhatsApp</a
+          >
         </div>
-        <span class="muted">Todos los datos son DEMO</span>
       </div>
-      <div id="servicesGrid" class="card-grid"></div>
-    </section>
+    </header>
 
-    <section>
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Portfolio</p>
-          <h2>Trabajos recientes</h2>
+    <main id="publicContent" class="container stack-xl" hidden>
+      <section>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Servicios</p>
+            <h2>Servicios y precios</h2>
+          </div>
+          <span class="muted" data-demo-only>Datos de prueba · DEMO</span>
         </div>
+        <div id="servicesGrid" class="card-grid"></div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Portfolio</p>
+            <h2>Trabajos recientes</h2>
+          </div>
+        </div>
+        <div id="portfolioGrid" class="portfolio-grid"></div>
+      </section>
+
+      <section id="reservas" class="info-card">
+        <div>
+          <p class="eyebrow">Reservas</p>
+          <h2>¿Quieres pedir cita?</h2>
+          <p id="bookingText">
+            Este botón abrirá el enlace de reservas configurado por la
+            profesional.
+          </p>
+        </div>
+        <a id="bookingLink" class="button button--primary" href="#"
+          >Abrir reservas</a
+        >
+      </section>
+
+      <section class="details-grid">
+        <article class="info-card">
+          <p class="eyebrow">Ubicación</p>
+          <h3 id="location"></h3>
+        </article>
+        <article class="info-card">
+          <p class="eyebrow">Horario</p>
+          <h3 id="schedule"></h3>
+        </article>
+      </section>
+
+      <section class="info-card">
+        <p class="eyebrow">Redes</p>
+        <h2>Encuéntrame online</h2>
+        <div id="socialLinks" class="link-row"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__content">
+        <span>IA Manicuristas · MVP</span>
+        <a href="panel.html">Abrir panel profesional</a>
       </div>
-      <div id="portfolioGrid" class="portfolio-grid"></div>
-    </section>
+    </footer>
 
-    <section id="reservas" class="info-card">
-      <div>
-        <p class="eyebrow">Reservas</p>
-        <h2>¿Quieres pedir cita?</h2>
-        <p id="bookingText">Este botón abrirá el enlace de reservas configurado por la profesional.</p>
-      </div>
-      <a id="bookingLink" class="button button--primary" href="#">Abrir reservas</a>
-    </section>
-
-    <section class="details-grid">
-      <article class="info-card">
-        <p class="eyebrow">Ubicación</p>
-        <h3 id="location">Ubicación DEMO</h3>
-        <p class="muted">Se sustituirá por la ubicación real cuando la profesional la configure.</p>
-      </article>
-      <article class="info-card">
-        <p class="eyebrow">Horario</p>
-        <h3 id="schedule">Horario DEMO</h3>
-        <p class="muted">Se sustituirá por el horario real cuando la profesional lo configure.</p>
-      </article>
-    </section>
-
-    <section class="info-card">
-      <p class="eyebrow">Redes</p>
-      <h2>Encuéntrame online</h2>
-      <div id="socialLinks" class="link-row"></div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="container footer__content">
-      <span>IA Manicuristas · MVP</span>
-      <a href="panel.html">Abrir panel profesional</a>
-    </div>
-  </footer>
-
-  <script src="app.js"></script>
-</body>
+    <noscript>Activa JavaScript para cargar esta miniweb.</noscript>
+    <script type="module" src="main.js"></script>
+  </body>
 </html>
