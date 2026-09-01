@@ -2,7 +2,7 @@ const STORAGE_KEY = 'ia-manicuristas-demo-v1';
 
 const demoData = {
   business: {
-    name: 'Maura Nails — DEMO',
+    name: 'Manicurista — DEMO',
     tagline: 'Página de prueba. Datos no reales.',
     location: 'Ubicación DEMO',
     schedule: 'Horario DEMO',
