@@ -1,93 +1,257 @@
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Panel profesional — IA Manicuristas MVP</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body data-page="panel">
-  <header class="panel-header">
-    <div class="container panel-header__content">
-      <div>
-        <span class="demo-badge">MVP · DEMO</span>
-        <h1>Panel profesional</h1>
-        <p>Edita la miniweb sin tocar código. Los cambios se guardan solo en este navegador.</p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Panel profesional — IA Manicuristas MVP</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="panel">
+    <header class="panel-header">
+      <div class="container panel-header__content">
+        <div>
+          <span class="demo-badge">MVP</span>
+          <h1>Panel profesional</h1>
+          <p>
+            Edita la miniweb sin tocar código. Guarda los cambios de tu negocio
+            en tu cuenta.
+          </p>
+        </div>
+        <div class="link-row">
+          <a
+            id="previewLink"
+            class="button button--secondary"
+            href="index.html"
+            hidden
+            >Ver miniweb</a
+          >
+          <button
+            id="signOut"
+            class="button button--secondary"
+            type="button"
+            hidden
+          >
+            Cerrar sesión
+          </button>
+        </div>
       </div>
-      <a class="button button--secondary" href="index.html">Ver miniweb</a>
+    </header>
+
+    <div class="container status-area">
+      <p id="pageStatus" role="status" aria-live="polite">
+        Comprobando sesión…
+      </p>
+      <button
+        id="retryLoad"
+        class="button button--secondary"
+        type="button"
+        hidden
+      >
+        Volver a intentar
+      </button>
     </div>
-  </header>
 
-  <main class="container panel-layout">
-    <aside class="panel-nav">
-      <a href="#negocio">Negocio</a>
-      <a href="#servicios">Servicios</a>
-      <a href="#portfolio">Portfolio</a>
-      <a href="#contacto">WhatsApp y reservas</a>
-    </aside>
+    <section id="loginSection" class="container auth-card panel-card" hidden>
+      <h2>Accede a tu negocio</h2>
+      <p>Introduce el correo y la contraseña de tu cuenta profesional.</p>
+      <form id="loginForm" class="form-grid">
+        <label
+          >Correo electrónico<input
+            id="loginEmail"
+            type="email"
+            autocomplete="username"
+            required
+        /></label>
+        <label
+          >Contraseña<input
+            id="loginPassword"
+            type="password"
+            autocomplete="current-password"
+            required
+        /></label>
+        <button class="button button--primary" type="submit">Entrar</button>
+      </form>
+    </section>
 
-    <div class="stack-lg">
-      <section id="negocio" class="panel-card">
-        <div class="section-heading">
-          <div><p class="eyebrow">Configuración</p><h2>Tu negocio</h2></div>
-        </div>
-        <div class="form-grid">
-          <label>Nombre / marca<input id="inputBusinessName" type="text" /></label>
-          <label>Descripción corta<input id="inputTagline" type="text" /></label>
-          <label>Ubicación<input id="inputLocation" type="text" /></label>
-          <label>Horario<input id="inputSchedule" type="text" /></label>
-          <label>Instagram<input id="inputInstagram" type="text" placeholder="https://..." /></label>
-          <label>TikTok<input id="inputTiktok" type="text" placeholder="https://..." /></label>
-        </div>
-        <button id="saveBusiness" class="button button--primary" type="button">Guardar negocio</button>
-      </section>
+    <section id="businessChooser" class="container auth-card panel-card" hidden>
+      <h2>Elige tu negocio</h2>
+      <div id="businessChoices" class="admin-list"></div>
+    </section>
 
-      <section id="servicios" class="panel-card">
-        <div class="section-heading">
-          <div><p class="eyebrow">Servicios</p><h2>Servicios y precios</h2></div>
-          <span class="muted">Sin base de datos todavía</span>
-        </div>
-        <form id="serviceForm" class="inline-form">
-          <input id="serviceName" type="text" placeholder="Ej. Servicio DEMO" required />
-          <input id="servicePrice" type="text" placeholder="Ej. Precio DEMO" required />
-          <button class="button button--primary" type="submit">Añadir</button>
-        </form>
-        <div id="panelServices" class="admin-list"></div>
-      </section>
+    <main id="panelContent" class="container panel-layout" hidden>
+      <aside class="panel-nav">
+        <a href="#negocio">Negocio</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#portfolio">Portfolio</a>
+        <a href="#contacto">WhatsApp y reservas</a>
+      </aside>
 
-      <section id="portfolio" class="panel-card">
-        <div class="section-heading">
-          <div><p class="eyebrow">Portfolio</p><h2>Trabajos</h2></div>
-        </div>
-        <form id="portfolioForm" class="form-grid">
-          <label>Título<input id="portfolioTitle" type="text" placeholder="Diseño DEMO" required /></label>
-          <label>Servicio<input id="portfolioService" type="text" placeholder="Servicio DEMO" required /></label>
-          <label>URL de imagen<input id="portfolioImage" type="url" placeholder="https://..." /></label>
-          <label>Nota / precio<input id="portfolioNote" type="text" placeholder="Dato DEMO" /></label>
-          <button class="button button--primary" type="submit">Añadir trabajo</button>
-        </form>
-        <div id="panelPortfolio" class="admin-list"></div>
-      </section>
+      <div class="stack-lg">
+        <section id="negocio" class="panel-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Configuración</p>
+              <h2>Tu negocio</h2>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label
+              >Nombre / marca<input id="inputBusinessName" type="text"
+            /></label>
+            <label
+              >Descripción corta<input id="inputTagline" type="text"
+            /></label>
+            <label>Ubicación<input id="inputLocation" type="text" /></label>
+            <label>Horario<input id="inputSchedule" type="text" /></label>
+            <label
+              >Instagram<input
+                id="inputInstagram"
+                type="text"
+                placeholder="https://..."
+            /></label>
+            <label
+              >TikTok<input
+                id="inputTiktok"
+                type="text"
+                placeholder="https://..."
+            /></label>
+          </div>
+          <button
+            id="saveBusiness"
+            class="button button--primary"
+            type="button"
+          >
+            Guardar negocio
+          </button>
+        </section>
 
-      <section id="contacto" class="panel-card">
-        <div class="section-heading">
-          <div><p class="eyebrow">Contacto</p><h2>WhatsApp y reservas</h2></div>
-        </div>
-        <div class="form-grid">
-          <label>Número de WhatsApp<input id="inputWhatsapp" type="text" placeholder="Ej. +34..." /></label>
-          <label>Enlace de reservas<input id="inputBooking" type="url" placeholder="https://..." /></label>
-        </div>
-        <button id="saveContact" class="button button--primary" type="button">Guardar contacto</button>
-      </section>
+        <section id="servicios" class="panel-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Servicios</p>
+              <h2>Servicios y precios</h2>
+            </div>
+            <span class="muted">Guardado en tu cuenta</span>
+          </div>
+          <form id="serviceForm" class="inline-form">
+            <input
+              id="serviceName"
+              type="text"
+              aria-label="Nombre del servicio"
+              placeholder="Nombre del servicio"
+              required
+            />
+            <input
+              id="servicePrice"
+              type="number"
+              min="0"
+              step="0.01"
+              aria-label="Precio"
+              placeholder="Precio"
+              required
+            />
+            <button class="button button--primary" type="submit">Añadir</button>
+          </form>
+          <div id="panelServices" class="admin-list"></div>
+        </section>
 
-      <section class="danger-zone">
-        <div><h3>Restablecer DEMO</h3><p>Borra los cambios locales y vuelve a los datos de prueba.</p></div>
-        <button id="resetDemo" class="button button--danger" type="button">Restablecer</button>
-      </section>
-    </div>
-  </main>
+        <section id="portfolio" class="panel-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Portfolio</p>
+              <h2>Trabajos</h2>
+            </div>
+          </div>
+          <form id="portfolioForm" class="form-grid">
+            <label
+              >Título<input
+                id="portfolioTitle"
+                type="text"
+                placeholder="Diseño DEMO"
+                required
+            /></label>
+            <label
+              >Servicio<input
+                id="portfolioService"
+                type="text"
+                placeholder="Servicio DEMO"
+                required
+            /></label>
+            <div class="portfolio-upload">
+              <label for="portfolioFile">Imagen del trabajo</label>
+              <input
+                id="portfolioFile"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                aria-describedby="portfolioImageHelp portfolioImageStatus"
+              />
+              <p id="portfolioImageHelp" class="muted">
+                JPG, PNG o WebP · Máximo 5 MB. Se subirá al guardar el trabajo.
+              </p>
+              <img
+                id="portfolioPreview"
+                class="portfolio-preview"
+                alt="Previsualización de la imagen seleccionada"
+                hidden
+              />
+              <p id="portfolioImageStatus" class="muted" role="status"></p>
+              <details>
+                <summary>Usar una URL en su lugar</summary>
+                <label for="portfolioImage">URL de imagen</label>
+                <input
+                  id="portfolioImage"
+                  type="text"
+                  inputmode="url"
+                  placeholder="https://..."
+                />
+                <p class="muted">
+                  Si eliges un archivo, se utilizará el archivo.
+                </p>
+              </details>
+            </div>
+            <label
+              >Nota / precio<input
+                id="portfolioNote"
+                type="text"
+                placeholder="Dato DEMO"
+            /></label>
+            <button class="button button--primary" type="submit">
+              Añadir trabajo
+            </button>
+          </form>
+          <div id="panelPortfolio" class="admin-list"></div>
+        </section>
 
-  <div id="toast" class="toast" aria-live="polite"></div>
-  <script src="app.js"></script>
-</body>
+        <section id="contacto" class="panel-card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Contacto</p>
+              <h2>WhatsApp y reservas</h2>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label
+              >Número de WhatsApp<input
+                id="inputWhatsapp"
+                type="text"
+                placeholder="Ej. +34..."
+            /></label>
+            <label
+              >Enlace de reservas<input
+                id="inputBooking"
+                type="url"
+                placeholder="https://..."
+            /></label>
+          </div>
+          <button id="saveContact" class="button button--primary" type="button">
+            Guardar contacto
+          </button>
+        </section>
+      </div>
+    </main>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+    <noscript>Activa JavaScript para acceder al panel.</noscript>
+    <script type="module" src="main.js"></script>
+  </body>
 </html>

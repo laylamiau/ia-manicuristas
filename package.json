@@ -1,0 +1,13 @@
+{
+  "name": "ia-manicuristas",
+  "private": true,
+  "scripts": {
+    "test": "node tests/browser.cjs",
+    "format": "prettier --write *.js *.html *.css *.md tests/*.cjs",
+    "format:check": "prettier --check *.js *.html *.css *.md tests/*.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1",
+    "prettier": "3.9.6"
+  }
+}
