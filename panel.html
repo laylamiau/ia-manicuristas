@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel profesional — IA Manicuristas MVP</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="panel">
+  <header class="panel-header">
+    <div class="container panel-header__content">
+      <div>
+        <span class="demo-badge">MVP · DEMO</span>
+        <h1>Panel profesional</h1>
+        <p>Edita la miniweb sin tocar código. Los cambios se guardan solo en este navegador.</p>
+      </div>
+      <a class="button button--secondary" href="index.html">Ver miniweb</a>
+    </div>
+  </header>
+
+  <main class="container panel-layout">
+    <aside class="panel-nav">
+      <a href="#negocio">Negocio</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#portfolio">Portfolio</a>
+      <a href="#contacto">WhatsApp y reservas</a>
+    </aside>
+
+    <div class="stack-lg">
+      <section id="negocio" class="panel-card">
+        <div class="section-heading">
+          <div><p class="eyebrow">Configuración</p><h2>Tu negocio</h2></div>
+        </div>
+        <div class="form-grid">
+          <label>Nombre / marca<input id="inputBusinessName" type="text" /></label>
+          <label>Descripción corta<input id="inputTagline" type="text" /></label>
+          <label>Ubicación<input id="inputLocation" type="text" /></label>
+          <label>Horario<input id="inputSchedule" type="text" /></label>
+          <label>Instagram<input id="inputInstagram" type="text" placeholder="https://..." /></label>
+          <label>TikTok<input id="inputTiktok" type="text" placeholder="https://..." /></label>
+        </div>
+        <button id="saveBusiness" class="button button--primary" type="button">Guardar negocio</button>
+      </section>
+
+      <section id="servicios" class="panel-card">
+        <div class="section-heading">
+          <div><p class="eyebrow">Servicios</p><h2>Servicios y precios</h2></div>
+          <span class="muted">Sin base de datos todavía</span>
+        </div>
+        <form id="serviceForm" class="inline-form">
+          <input id="serviceName" type="text" placeholder="Ej. Servicio DEMO" required />
+          <input id="servicePrice" type="text" placeholder="Ej. Precio DEMO" required />
+          <button class="button button--primary" type="submit">Añadir</button>
+        </form>
+        <div id="panelServices" class="admin-list"></div>
+      </section>
+
+      <section id="portfolio" class="panel-card">
+        <div class="section-heading">
+          <div><p class="eyebrow">Portfolio</p><h2>Trabajos</h2></div>
+        </div>
+        <form id="portfolioForm" class="form-grid">
+          <label>Título<input id="portfolioTitle" type="text" placeholder="Diseño DEMO" required /></label>
+          <label>Servicio<input id="portfolioService" type="text" placeholder="Servicio DEMO" required /></label>
+          <label>URL de imagen<input id="portfolioImage" type="url" placeholder="https://..." /></label>
+          <label>Nota / precio<input id="portfolioNote" type="text" placeholder="Dato DEMO" /></label>
+          <button class="button button--primary" type="submit">Añadir trabajo</button>
+        </form>
+        <div id="panelPortfolio" class="admin-list"></div>
+      </section>
+
+      <section id="contacto" class="panel-card">
+        <div class="section-heading">
+          <div><p class="eyebrow">Contacto</p><h2>WhatsApp y reservas</h2></div>
+        </div>
+        <div class="form-grid">
+          <label>Número de WhatsApp<input id="inputWhatsapp" type="text" placeholder="Ej. +34..." /></label>
+          <label>Enlace de reservas<input id="inputBooking" type="url" placeholder="https://..." /></label>
+        </div>
+        <button id="saveContact" class="button button--primary" type="button">Guardar contacto</button>
+      </section>
+
+      <section class="danger-zone">
+        <div><h3>Restablecer DEMO</h3><p>Borra los cambios locales y vuelve a los datos de prueba.</p></div>
+        <button id="resetDemo" class="button button--danger" type="button">Restablecer</button>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
